@@ -1,0 +1,118 @@
+
+import java.util.Scanner;
+
+/**
+ * Created by gwesl on 3/18/2017.
+ */
+public class Main {
+
+    public static void main(String[] args) {
+
+        int nNumber = nValue();
+        int mNumber = mValue();
+        int rNumber = rValue();
+        String aiPlayer = whoGoesFirst();
+        String humanPlayer;
+        if(aiPlayer == "X"){
+            humanPlayer="O";
+        }else{
+            humanPlayer="X";
+        }
+
+        Board board = new Board(nNumber, mNumber, rNumber, aiPlayer, humanPlayer);
+        board.createBoard();
+        int counter = 1;
+        start(board, counter, humanPlayer, aiPlayer);
+
+    }
+
+    static void start(Board board, int counter, String humanPlayer, String aiPlayer){
+
+        int player = counter%2;
+        Boolean Xwinner = false;
+        Boolean Owinner = false;
+        if(player == 1 && humanPlayer == "X"){
+            Xwinner = board.humanMove("X");
+        }
+        else if(player == 1 && aiPlayer == "X"){
+            System.out.println("How deep will the DFS go?");
+            Scanner scanner2 = new Scanner(System.in);
+            int depth = scanner2.nextInt();
+            board.setMaxDepth(depth);
+            board.aiMove(aiPlayer, board.getAiColumnMove());
+        }
+        else if(player == 0 && humanPlayer == "O"){
+            Owinner = board.humanMove("O");
+        }
+        else{System.out.println("How deep will the DFS go?");
+            Scanner scanner2 = new Scanner(System.in);
+            int depth = scanner2.nextInt();
+            board.setMaxDepth(depth);
+            board.aiMove(aiPlayer, board.getAiColumnMove());
+        }
+
+        if(Xwinner == true){
+            System.out.println("X player wins!");
+            return;
+        }else if(Owinner == true){
+            System.out.println("O player wins!");
+            return;
+        }
+
+        board.printBoard();
+        System.out.println();
+
+        counter++;
+        start(board, counter, humanPlayer, aiPlayer);
+    }
+
+    public static String whoGoesFirst(){
+        System.out.println("Is the AI player 1 or 2?");
+        Scanner scanner = new Scanner(System.in);
+        int player = scanner.nextInt();
+        if(player == 1){
+            return "X";
+        }else if(player == 2){
+            return "O";
+        }else{
+            System.out.println("Please enter numbers 1 or 2");
+            whoGoesFirst();
+        }
+        return "Dumbass code";
+    }
+
+    public static int nValue(){
+        System.out.println("Enter N of board: ");
+        Scanner scanner = new Scanner(System.in);
+        int nNumber = scanner.nextInt();
+
+        if(nNumber < 7){
+            System.out.println("Please enter a number greater than 7");
+            nNumber = nValue();
+        }
+        return nNumber;
+    }
+
+    public static int mValue(){
+        System.out.println("Enter M of board: ");
+        Scanner scanner = new Scanner(System.in);
+        int mNumber = scanner.nextInt();
+        if(mNumber < 6){
+            System.out.println("Please enter a number greater than 6");
+            mNumber = mValue();
+        }
+        return mNumber;
+
+    }
+
+    public static int rValue(){
+        System.out.println("Enter R of board: ");
+        Scanner scanner = new Scanner(System.in);
+        int rNumber = scanner.nextInt();
+        if(rNumber < 4){
+            System.out.println("Please enter a number greater than 4");
+            rNumber = rValue();
+        }
+        return rNumber;
+    }
+}
