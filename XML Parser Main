@@ -1,0 +1,103 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * Created by gwesl on 2/25/2017.
+ */
+public class Main {
+
+    static Tree binaryTree;
+
+
+    public static void main(String[] args) {
+
+        xmlParser parser = new xmlParser();
+        binaryTree = parser.parse();
+        parser.printTree(binaryTree, 0);
+        //depthFirstSearch(binaryTree, "combat");
+        //breadthFirstSearch(binaryTree, "Idle");
+        start();
+    }
+
+    static void start(){
+
+        Scanner gameScanner = new Scanner(System.in);
+        System.out.print("Event ('quit' to exit) : ");
+        String input = gameScanner.nextLine();
+        if (input.equalsIgnoreCase("quit")){
+            return;
+        }
+        //Tree found = breadthFirstSearch(binaryTree, input);
+        Tree found = depthFirstSearch(binaryTree, input);
+        if(found==null){
+            System.out.println("Response = ");
+        }else{
+            System.out.println("Response = " + randomLastLeaf(found).getData());
+        }
+
+        start();
+
+    }
+
+    static Tree depthFirstSearch(Tree tree, String string){
+        Tree behaviorLeaf = null;
+        if(string.equalsIgnoreCase(tree.getData())){
+            return tree;
+        }else {
+            for (int i = 0; i < tree.totalNumberLeaves(); i++) {
+                behaviorLeaf = tree.getLeaf(i);
+                if(behaviorLeaf.getData().equalsIgnoreCase(string)){
+                    return behaviorLeaf;
+                }
+                depthFirstSearch(behaviorLeaf, string);
+            }
+            if (tree != null) {
+                return null;
+            }
+            //System.out.println("You did it!");
+        }
+        return null;
+    }
+
+    static Tree breadthFirstSearch(Tree tree, String string){
+
+        Queue<Tree> queue1 = new LinkedList<>();
+        Queue<Tree> queue2 = new LinkedList<>();
+
+        queue1.add(tree);
+        if(queue1.peek().getData().equalsIgnoreCase(string)){
+            //System.out.println("Found it!");
+            return queue1.poll();
+        }
+
+        while(!queue1.isEmpty()){
+            for(int i = 0; i < queue1.peek().totalNumberLeaves(); i++){
+                //System.out.println(queue1.peek().getLeaf(i).getData());
+                if(queue1.peek().getData().equalsIgnoreCase(string)){
+                    //System.out.println("Found it!");
+                    Tree result = queue1.poll();
+                    return result;
+                }
+                queue1.add(queue1.peek().getLeaf(i));
+            }
+            queue2.add(queue1.poll());
+        }
+
+        //System.out.println("Didn't find it!");
+        return null;
+
+    }
+
+
+    static Tree randomLastLeaf(Tree tree){
+        if(tree.totalNumberLeaves() == 0){
+            return tree;
+        }
+        Random random = new Random();
+        int rand = random.nextInt(tree.totalNumberLeaves());
+        return randomLastLeaf(tree.getLeaf(rand));
+    }
+
+}
