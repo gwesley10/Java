@@ -1,0 +1,33 @@
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by gwesl on 2/25/2017.
+ */
+public class Tree {
+
+    String data = "";
+    List<Tree> bTree = new ArrayList<Tree>();
+
+    String getData(){ return this.data; }
+
+    void setData(String info){ this.data = info; }
+
+    Tree getLeaf(int i){
+        if(bTree.size() >= i) {
+            return bTree.get(i);
+        }else {
+            return null;
+        }
+    }
+
+    void addLeaf(Tree temp){ bTree.add(temp); }
+
+    List<Tree> getAllLeaves(){ return this.bTree; }
+
+    int totalNumberLeaves(){ return bTree.size(); }
+
+    Boolean isEmpty(){ return data.equals(""); }
+
+}
