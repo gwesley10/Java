@@ -1,0 +1,606 @@
+
+import java.util.Scanner;
+
+public class Board {
+    int nNumber;
+    int mNumber;
+    int rNumber;
+    private int maxDepth;
+    private String aiPlayer;
+    private String humanPlayer;
+    private String[][] game;
+    private int aiColumnMove;
+
+
+    public Board(int n, int m, int r, String a, String h){
+        nNumber = n;
+        mNumber = m;
+        rNumber = r;
+        aiPlayer = a;
+        humanPlayer = h;
+    }
+
+    public void setMaxDepth(int depth){
+        maxDepth = depth;
+    }
+
+    public Boolean humanMove(String player){
+
+
+        printBoard();
+        System.out.println();
+        System.out.println("What column do you place your checker?");
+        Scanner scanner = new Scanner(System.in);
+        int column = scanner.nextInt();
+
+        if (column >= nNumber){
+            System.out.println("Please enter a number lower than the number of columns");
+            humanMove(player);
+        }
+
+        for(int i =0; i < mNumber; i++){
+            if(game[i][column] == "X" || game[i][column] == "O"){
+                if(i == 0){
+                    System.out.println("This column is full. Please choose another column");
+                    humanMove(player);
+                }else {
+                    game[i - 1][column] = player;
+                    printBoard();
+                    if (checkForUndo() == true) {
+                        break;
+                    } else {
+                        undoLastMove(column);
+                        humanMove(player);
+                    }
+                }
+            } else if(i==mNumber-1 && game[i][column] != "X" && game[i][column] != "O"){
+                game[i][column] = player;
+                printBoard();
+                if(checkForUndo() == true){
+                    break;
+                }else{
+                    undoLastMove(column);
+                    humanMove(player);
+                }
+            }
+        }
+
+        if(checkBoardResult() == true){
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public void aiMove(String player, int column){
+
+        for(int i = mNumber-1; i >= 0; i--){
+            if(game[i][column] == "."){
+                    game[i][column] = player;
+            }
+        }
+
+    }
+
+    public Boolean checkForUndo(){
+        System.out.println("Is this the correct placement? (y/n)");
+        Scanner scanner = new Scanner(System.in);
+        String response = scanner.next();
+        if(response.equalsIgnoreCase("y")){
+            return true;
+        }else if(response.equalsIgnoreCase("n")){
+            return false;
+        }else{
+            System.out.println("Please enter a 'y' or an 'n'");
+            checkForUndo();
+        }
+        return false;
+    }
+
+    public void createBoard(){
+        game = new String[mNumber][nNumber];
+        for(int i = 0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                game[i][j] = ".";
+            }
+        }
+    }
+
+    public void printBoard(){
+        for(int i = 0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                System.out.print("\t" + game[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    public Boolean checkBoardResult(){
+        Boolean chTie = checkTie();
+        Boolean xVert = checkXVerticalWin();
+        Boolean xHori = checkXHorizontalWin();
+        Boolean xRiDi = checkXRightDiagonalWin();
+        Boolean xLeDi = checkXLeftDiagonalWin();
+        Boolean oVert = checkOVerticalWin();
+        Boolean oHori = checkOHorizontalWin();
+        Boolean oRiDi = checkORightDiagonalWin();
+        Boolean oLeDi = checkOLeftDiagonalWin();
+
+        if(chTie || xVert || xHori || xRiDi || xLeDi || oVert || oHori || oRiDi|| oLeDi){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean checkXVerticalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int down = i;
+                if(game[i][j] == "X"){
+                    counter++;
+                    while((down+1) < mNumber && game[down+1][j] == "X"){
+                        down++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkXHorizontalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int right = j;
+                if(game[i][j] == "X"){
+                    counter++;
+                    while((right+1) < nNumber && game[i][right+1] == "X"){
+                        right++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkXRightDiagonalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int downi = i;
+                int downj = j;
+                if(game[i][j] == "X"){
+                    counter++;
+                    while((downi+1) < mNumber && (downj-1) >= 0 && game[downi+1][downj-1] == "X") {
+                        downi++;
+                        downj--;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkXLeftDiagonalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int downi = i;
+                int downj = j;
+                if(game[i][j] == "X"){
+                    counter++;
+                    while((downi+1) < mNumber && (downj+1) < nNumber && game[downi+1][downj+1] == "X") {
+                        downi++;
+                        downj++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkOVerticalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int down = i;
+                if(game[i][j] == "O"){
+                    counter++;
+                    while((down+1) < mNumber && game[down+1][j] == "X"){
+                        down++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkOHorizontalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int right = j;
+                if(game[i][j] == "O"){
+                    counter++;
+                    while((right+1) < nNumber && game[i][right+1] == "X"){
+                        right++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkORightDiagonalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int downi = i;
+                int downj = j;
+                if(game[i][j] == "O"){
+                    counter++;
+                    while((downi+1) < mNumber && (downj-1) >= 0 && game[downi+1][downj-1] == "X") {
+                        downi++;
+                        downj--;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkOLeftDiagonalWin(){
+
+        for(int i =0; i < mNumber; i++){
+            for(int j = 0; j < nNumber; j++){
+                int counter = 0;
+                int downi = i;
+                int downj = j;
+                if(game[i][j] == "O"){
+                    counter++;
+                    while((downi+1) < mNumber && (downj+1) < nNumber && game[downi+1][downj+1] == "X") {
+                        downi++;
+                        downj++;
+                        counter++;
+                    }
+                    if(counter >= rNumber){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Boolean checkTie(){
+
+        for(int i = 0; i < mNumber; i++){
+            for(int j = 0; j <nNumber; j++){
+                if(game[i][j] == "."){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public int minimax(int depth, String player, int alpha,int beta){
+
+        if(beta <= alpha){
+            if(player == aiPlayer){
+                return Integer.MAX_VALUE;
+            }else{
+                return Integer.MIN_VALUE;
+            }
+        }
+
+        if(player == "X"){
+            if(checkXHorizontalWin() || checkXLeftDiagonalWin() || checkXRightDiagonalWin() || checkXVerticalWin()){
+                return Integer.MAX_VALUE/2;
+            }else if(checkOHorizontalWin() || checkOLeftDiagonalWin() || checkORightDiagonalWin() || checkOVerticalWin()){
+                return Integer.MIN_VALUE/2;
+            }else if(checkTie()){
+                return 0;
+            }
+        }else if(player == "O"){
+            if(checkOHorizontalWin() || checkOLeftDiagonalWin() || checkORightDiagonalWin() || checkOVerticalWin()){
+                return Integer.MAX_VALUE/2;
+            }else if(checkXHorizontalWin() || checkXLeftDiagonalWin() || checkXRightDiagonalWin() || checkXVerticalWin()){
+                return Integer.MIN_VALUE/2;
+            }else if(checkTie()){
+                return 0;
+            }
+        }
+
+        if(depth == maxDepth){
+            return boardStateScore();
+        }
+
+        int maxScore = Integer.MIN_VALUE;
+        int minScore = Integer.MAX_VALUE;
+
+        for(int j = 0; j < nNumber; j++){
+            int score = 0;
+            if(game[0][j] != "."){
+                continue;
+            }
+
+            if(player == aiPlayer){
+                aiMove(aiPlayer, j);
+                score = minimax(depth+1, humanPlayer, alpha, beta);
+
+                if(depth == 0){
+                    if(score > maxScore){
+                        aiColumnMove = j;
+                    }
+                    if(score == Integer.MAX_VALUE/2){
+                        undoLastMove(j);
+                    }
+                }
+
+                maxScore = Math.max(score, maxScore);
+                alpha = Math.max(score, alpha);
+            } else if(player == humanPlayer){
+                aiMove(humanPlayer, j);
+                score = minimax(depth+1, aiPlayer, alpha, beta);
+                minScore = Math.min(score, minScore);
+                beta = Math.min(score, beta);
+            }
+            undoLastMove(j);
+            if(score == Integer.MAX_VALUE || score == Integer.MIN_VALUE){
+                break;
+            }
+        }
+        if(player == aiPlayer){
+            return maxScore;
+        }else{
+            return minScore;
+        }
+    }
+
+    public void undoLastMove(int column){
+        for (int i = 0; i < mNumber; i++) {
+            if (game[i][column] == aiPlayer || game[i][column] == humanPlayer) {
+                game[i][column] = ".";
+                break;
+            }
+        }
+    }
+
+    public Boolean legalMove(int column){
+        return game[0][column] == ".";
+    }
+
+    public int boardStateScore(){
+        int aiScore = 1;
+        int score = 0;
+        int isBlank = 0;
+        int connections;
+        for(int i = mNumber-1; i >= 0; i--){
+            for(int j = 0; j < nNumber; j++){
+                if(game[i][j] == "." || game[i][j] == humanPlayer){
+                    continue;
+                }
+                if(j < rNumber){
+                    for(int q = 1; q < rNumber; q++){
+                        if(game[i][j+q] == aiPlayer){
+                            aiScore++;
+                        }else if(game[i][j+q] == humanPlayer){
+                            aiScore = 0;
+                            isBlank = 0;
+                            break;
+                        }else{
+                            isBlank++;
+                        }
+                    }
+                    connections = 0;
+                    if(isBlank > 0){
+                        for(int y = 1; y < rNumber; y++){
+                            for(int x = i; x < mNumber; x++){
+                                if(game[x][j+y] == "."){
+                                    connections++;
+                                }else{
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(connections != 0){
+                        score += getScore(aiScore, connections);
+                    }
+                    aiScore = 1;
+                    isBlank = 0;
+                }
+
+                if(i > rNumber){
+                    int q;
+                    for(q = 1; q < rNumber; q++){
+                        if(game[i-q][j] == aiPlayer){
+                            aiScore++;
+                        }else if(game[i-q][j] == humanPlayer){
+                            aiScore = 0;
+                            break;
+                        }
+                    }
+
+                    connections = 0;
+
+                    if(aiScore > 0){
+                        for(int x = i-q+1; x <= i-1; x++){
+                            if(game[x][j] == "."){
+                                connections++;
+                            }else{
+                                break;
+                            }
+                        }
+                    }
+
+                    if(connections != 0){
+                        score += getScore(aiScore, connections);
+                    }
+                    aiScore = 1;
+                    isBlank = 0;
+                }
+
+                if(j >= nNumber - rNumber){
+                    for(int q = 1; q < rNumber; q++){
+                        if(game[i][j-q] == aiPlayer){
+                            aiScore++;
+                        }else if(game[i][j-q] == humanPlayer){
+                            aiScore = 0;
+                            isBlank = 0;
+                            break;
+                        }else{
+                            isBlank++;
+                        }
+                    }
+                    connections = 0;
+                    if(isBlank > 0){
+                        for(int y = 1; y < rNumber; y++){
+                            for(int x = i; x < mNumber; x++){
+                                if(game[x][j-y] == "."){
+                                    connections++;
+                                }else{
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(connections != 0){
+                        score += getScore(aiScore, connections);
+                    }
+                    aiScore = 1;
+                    isBlank = 0;
+                }
+
+                if(j < rNumber && i >  rNumber){
+                    for(int q = 1; q < rNumber; q++){
+                        if(game[i-q][j+q] == aiPlayer){
+                            aiScore++;
+                        }else if(game[i-q][j+q] == humanPlayer){
+                            aiScore = 0;
+                            isBlank = 0;
+                            break;
+                        }else{
+                            isBlank++;
+                        }
+                    }
+                    connections = 0;
+                    if(isBlank > 0){
+                        for(int y = 1; y < rNumber; y++){
+                            for(int x = i-y+1; x < mNumber; x++){
+                                if(game[x-y][j+y] == "."){
+                                    connections++;
+                                }else if(game[x-y][j+y] == aiPlayer);
+                                else{
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(connections != 0){
+                        score += getScore(aiScore, connections);
+                    }
+                    aiScore = 1;
+                    isBlank = 0;
+                }
+
+                if(j >= nNumber-rNumber && i > rNumber){
+                    for(int q = 1; q < rNumber; q++){
+                        if(game[i-q][j-q] == aiPlayer){
+                            aiScore++;
+                        }else if(game[i-q][j-q] == humanPlayer){
+                            aiScore = 0;
+                            isBlank = 0;
+                            break;
+                        }else{
+                            isBlank++;
+                        }
+                    }
+                    connections = 0;
+                    if(isBlank > 0){
+                        for(int y = 1; y < rNumber; y++){
+                            for(int x = i; x < mNumber; x++){
+                                if(game[x-y][j-y] == "."){
+                                    connections++;
+                                }else if(game[x-y][j+y] == aiPlayer);
+                                else{
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(connections != 0){
+                        score += getScore(aiScore, connections);
+                    }
+                    aiScore = 1;
+                    isBlank = 0;
+                }
+            }
+        }
+        return score;
+    }
+
+    public int getScore(int aiScore, int connections){
+        int connectionScore = rNumber -connections;
+        int finalScore = -1;
+        if(aiScore == 0){
+            finalScore = 0;
+        }
+        for(int r = 1; r <rNumber; r++){
+            if(aiScore == r){
+                int power = r-1;
+                finalScore = ((int)Math.pow(10, power))*connectionScore;
+            }
+        }
+        return finalScore;
+    }
+
+    public int getAiColumnMove(){
+        aiColumnMove = -1;
+        minimax(0, aiPlayer, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        return aiColumnMove;
+    }
+
+}
